@@ -1,6 +1,6 @@
 # Stara Maze Generator
 
-A Python package for generating, solving, and visualizing mazes using a modified version of Prim's algorithm. The mazes are represented as NumPy arrays and can be exported as interactive HTML visualizations.
+A Python package for generating, solving, and visualizing mazes using a modified version of Prim's algorithm. The mazes are represented as NumPy arrays and can be exported as HTML visualizations.
 
 ## Features
 
