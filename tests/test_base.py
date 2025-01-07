@@ -9,11 +9,6 @@ class TestPathfinderBase:
     def simple_maze(self):
         """Create a simple 4x4 maze for testing."""
         maze = VMaze(seed=42, size=4, start=(0, 0), goal=(3, 3), min_valid_paths=1)
-        # Set up a simple maze layout (1 = passage, 0 = wall):
-        # S 1 1 1
-        # 0 0 1 1
-        # 1 1 1 0
-        # 1 0 1 G
         maze.maze_map = np.array(
             [[1, 1, 1, 1], [0, 0, 1, 1], [1, 1, 1, 0], [1, 0, 1, 1]]
         )
@@ -42,24 +37,21 @@ class TestPathfinderBase:
 
     def test_get_cell_neighbours(self, simple_maze, pathfinder):
         """Test that get_cell_neighbours returns correct neighbors."""
-        # Test center cell (2,2)
         neighbors = pathfinder.maze.get_cell_neighbours(2, 2)
-        assert len(neighbors) == 4  # Should have 4 neighbors
-        # Check up, down, left, right neighbors exist and have correct values
-        assert neighbors[0] == (1, 2, 1)  # up
-        assert neighbors[1] == (3, 2, 1)  # down
-        assert neighbors[2] == (2, 1, 1)  # left
-        assert neighbors[3] == (2, 3, 0)  # right
+        assert len(neighbors) == 4
+        assert neighbors[0] == (1, 2, 1)
+        assert neighbors[1] == (3, 2, 1)
+        assert neighbors[2] == (2, 1, 1)
+        assert neighbors[3] == (2, 3, 0)
 
     def test_edge_cell_neighbours(self, simple_maze, pathfinder):
         """Test get_cell_neighbours for edge cells."""
-        # Test top-left corner (0,0)
         neighbors = pathfinder.maze.get_cell_neighbours(0, 0)
         assert len(neighbors) == 4
-        assert neighbors[0] is None  # up (out of bounds)
-        assert neighbors[1] == (1, 0, 0)  # down
-        assert neighbors[2] is None  # left (out of bounds)
-        assert neighbors[3] == (0, 1, 1)  # right
+        assert neighbors[0] is None
+        assert neighbors[1] == (1, 0, 0)
+        assert neighbors[2] is None
+        assert neighbors[3] == (0, 1, 1)
 
     def test_boundary_validation(self, simple_maze):
         """Test that maze size validation works."""

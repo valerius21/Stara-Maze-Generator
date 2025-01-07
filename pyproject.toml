@@ -13,10 +13,12 @@ loguru = "^0.7.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
+pytest-cov = "^4.1.0"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+addopts = "--cov=stara_maze_generator --cov-report=term-missing --cov-report=html"
 
 [build-system]
 requires = ["poetry-core"]
