@@ -171,3 +171,4 @@ cython_debug/
 .pypirc
 
 *_maze.html
+*_maze.json
