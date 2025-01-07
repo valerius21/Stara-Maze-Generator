@@ -1,7 +1,11 @@
-import pytest
+import json
+from pathlib import Path
+
 import numpy as np
-from stara_maze_generator.vmaze import VMaze
+import pytest
+
 from stara_maze_generator.pathfinder import Pathfinder
+from stara_maze_generator.vmaze import VMaze
 
 
 class TestVMaze:
@@ -14,6 +18,13 @@ class TestVMaze:
         )
         return maze
 
+    @pytest.fixture
+    def simple_maze(self):
+        """Create a simple maze with generated paths."""
+        maze = VMaze(seed=42, size=4, start=(1, 1), goal=(2, 2))
+        maze.generate_maze()
+        return maze
+
     def test_initialization(self):
         """Test that VMaze initializes with correct parameters."""
         maze = VMaze(seed=42, size=10, start=(0, 0), goal=(9, 9))
@@ -22,7 +33,9 @@ class TestVMaze:
         assert np.array_equal(maze.start, np.array([0, 0]))
         assert np.array_equal(maze.goal, np.array([9, 9]))
         assert maze.seed == 42
+        assert maze.min_valid_paths == 3
         assert maze.pathfinding_algorithm == Pathfinder.BFS
+        assert isinstance(maze.rng, np.random.Generator)
 
     def test_initialization_validation(self):
         """Test that initialization validates parameters."""
@@ -81,19 +94,36 @@ class TestVMaze:
 
     def test_get_cell_neighbours_corner(self, basic_maze):
         """Test getting neighbors for corner cells."""
+        # Top-left corner
         neighbors = basic_maze.get_cell_neighbours(0, 0)
         assert len(neighbors) == 4
-        assert neighbors[0] is None
-        assert neighbors[2] is None
-        assert neighbors[1] == (1, 0, 0)
-        assert neighbors[3] == (0, 1, 1)
+        assert neighbors[0] is None  # Up
+        assert neighbors[2] is None  # Left
+        assert neighbors[1] == (1, 0, 0)  # Down
+        assert neighbors[3] == (0, 1, 1)  # Right
 
+        # Bottom-right corner
         neighbors = basic_maze.get_cell_neighbours(3, 3)
         assert len(neighbors) == 4
-        assert neighbors[1] is None
-        assert neighbors[3] is None
-        assert neighbors[0] == (2, 3, 1)
-        assert neighbors[2] == (3, 2, 0)
+        assert neighbors[1] is None  # Down
+        assert neighbors[3] is None  # Right
+        assert neighbors[0] == (2, 3, 1)  # Up
+        assert neighbors[2] == (3, 2, 0)  # Left
+
+    def test_get_cell_neighbours_edges(self, basic_maze):
+        """Test getting neighbors for edge cells."""
+        # Top edge
+        neighbors = basic_maze.get_cell_neighbours(0, 1)
+        assert len(neighbors) == 4
+        assert neighbors[0] is None  # Up
+        assert neighbors[1] is not None  # Down
+        assert neighbors[2] is not None  # Left
+        assert neighbors[3] is not None  # Right
+
+        # Right edge
+        neighbors = basic_maze.get_cell_neighbours(1, 3)
+        assert len(neighbors) == 4
+        assert neighbors[3] is None  # Right
 
     def test_export_html(self, basic_maze, tmp_path):
         """Test HTML export functionality."""
@@ -123,3 +153,73 @@ class TestVMaze:
         """Test string representation of maze."""
         expected = "VMaze(rows=4, cols=4, start=[0 0], goal=[3 3])"
         assert str(basic_maze) == expected
+
+    def test_to_dict(self, simple_maze):
+        """Test dictionary conversion with original types."""
+        maze_dict = simple_maze.to_dict()
+        assert isinstance(maze_dict["seed"], (int, np.integer))
+        assert isinstance(maze_dict["size"], (int, np.integer))
+        assert isinstance(maze_dict["start"], list)
+        assert isinstance(maze_dict["goal"], list)
+        assert isinstance(maze_dict["min_valid_paths"], (int, np.integer))
+        assert isinstance(maze_dict["maze_map"], list)
+        assert isinstance(maze_dict["maze_map"][0], list)
+        assert isinstance(maze_dict["pathfinding_algorithm"], str)
+
+        # Verify values
+        assert maze_dict["seed"] == simple_maze.seed
+        assert maze_dict["size"] == simple_maze.rows
+        assert maze_dict["start"] == simple_maze.start.tolist()
+        assert maze_dict["goal"] == simple_maze.goal.tolist()
+        assert maze_dict["min_valid_paths"] == simple_maze.min_valid_paths
+        assert np.array_equal(maze_dict["maze_map"], simple_maze.maze_map.tolist())
+
+    def test_to_json(self, simple_maze):
+        """Test JSON string conversion with native Python types."""
+        json_str = simple_maze.to_json()
+        data = json.loads(json_str)  # Should not raise any JSON decode errors
+
+        # Verify all numeric values are native Python types
+        assert isinstance(data["seed"], int)
+        assert isinstance(data["size"], int)
+        assert all(isinstance(x, int) for x in data["start"])
+        assert all(isinstance(x, int) for x in data["goal"])
+        assert isinstance(data["min_valid_paths"], int)
+        assert all(isinstance(x, int) for row in data["maze_map"] for x in row)
+
+    def test_export_json(self, simple_maze, tmp_path):
+        """Test JSON file export."""
+        json_path = tmp_path / "maze.json"
+        simple_maze.export_json(json_path)
+
+        # Verify file exists and is valid JSON
+        assert json_path.exists()
+        with open(json_path) as f:
+            maze_data = json.load(f)
+
+        # Check key properties
+        assert maze_data["seed"] == int(simple_maze.seed)
+        assert maze_data["size"] == int(simple_maze.rows)
+        assert maze_data["start"] == [int(x) for x in simple_maze.start.tolist()]
+        assert maze_data["goal"] == [int(x) for x in simple_maze.goal.tolist()]
+        assert np.array_equal(
+            maze_data["maze_map"],
+            [[int(cell) for cell in row] for row in simple_maze.maze_map.tolist()],
+        )
+
+    def test_generate_maze_with_min_paths(self):
+        """Test maze generation with minimum valid paths requirement."""
+        maze = VMaze(seed=42, size=6, start=(1, 1), goal=(4, 4), min_valid_paths=3)
+        maze.generate_maze()
+
+        # Block all but one path and verify we can still find a solution
+        path = maze.find_path()
+        assert path is not None
+
+        # Block the found path
+        for x, y in path[1:-1]:  # Don't block start/goal
+            maze.maze_map[x, y] = 0
+
+        # Should still find another path
+        new_path = maze.find_path()
+        assert new_path is not None

@@ -122,7 +122,7 @@ class VMaze:
         )  # pragma: no cover
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert maze to JSON-serializable dictionary."""
+        """Convert maze to dictionary preserving original types."""
         return {
             "seed": self.seed,
             "size": self.rows,
@@ -134,10 +134,31 @@ class VMaze:
             "pathfinding_algorithm": self.pathfinding_algorithm.name,
         }
 
+    def to_json(self) -> str:
+        """Convert maze to JSON string with Python native types."""
+        data = self.to_dict()
+        return json.dumps(
+            {
+                "seed": int(data["seed"]),
+                "size": int(data["size"]),
+                "start": [int(x) for x in data["start"]],
+                "goal": [int(x) for x in data["goal"]],
+                "min_valid_paths": int(data["min_valid_paths"]),
+                "maze_map": [[int(cell) for cell in row] for row in data["maze_map"]],
+                "path": (
+                    [[int(x) for x in pos] for pos in data["path"]]
+                    if data["path"]
+                    else None
+                ),
+                "pathfinding_algorithm": data["pathfinding_algorithm"],
+            },
+            indent=2,
+        )
+
     def export_json(self, dest_path: Path) -> None:
         """Export maze as JSON file."""
         with open(dest_path, "w") as f:
-            json.dump(self.to_dict(), f, indent=2)
+            f.write(self.to_json())
 
     def generate_maze(self, pathfinding_algorithm: Pathfinder = Pathfinder.BFS):
         """
