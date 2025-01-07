@@ -159,13 +159,16 @@ class VMaze:
     def from_json(json_str: str) -> "VMaze":
         """Load maze from JSON string."""
         data = json.loads(json_str)
-        return VMaze(
+        maze = VMaze(
             seed=data["seed"],
             size=data["size"],
             start=data["start"],
             goal=data["goal"],
             min_valid_paths=data["min_valid_paths"],
         )
+        # generate maze after init
+        maze.generate_maze()
+        return maze
 
     def export_json(self, dest_path: Path) -> None:
         """Export maze as JSON file."""
