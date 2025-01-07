@@ -116,7 +116,9 @@ class VMaze:
         if pathfinding_algorithm == Pathfinder.BFS:
             self.pathfinding_algorithm = Pathfinder.BFS
             return BFS(self).find_path(self.start, self.goal)
-        raise NotImplementedError(f"Pathfinder {pathfinding_algorithm} not implemented")
+        raise NotImplementedError(
+            f"Pathfinder {pathfinding_algorithm} not implemented"
+        )  # pragma: no cover
 
     def generate_maze(self, pathfinding_algorithm: Pathfinder = Pathfinder.BFS):
         """

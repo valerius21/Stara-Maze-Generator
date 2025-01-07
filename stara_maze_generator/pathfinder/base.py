@@ -2,7 +2,7 @@ from typing import Tuple, List, Optional, TYPE_CHECKING
 
 from numpy._typing import NDArray
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from stara_maze_generator.vmaze import VMaze
 
 

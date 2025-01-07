@@ -96,14 +96,12 @@ def main():
     maze.generate_maze(pathfinding_algorithm=Pathfinder.BFS)
     end_time = time()
 
-    # Log generation info
     path = maze.find_path()
     logger.info(
         f"{Pathfinder.BFS}, len(path): {len(path) if path else 'No path found'}"
     )
     logger.info(f"Time taken: {end_time - start_time:.2f} seconds")
 
-    # Export visualization
     maze.export_html(args.output, draw_solution=args.draw_solution)
     logger.info(f"Maze exported to {args.output}")
 

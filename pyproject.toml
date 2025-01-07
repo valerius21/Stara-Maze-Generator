@@ -23,6 +23,9 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "--cov=stara_maze_generator --cov-report=term-missing --cov-report=html"
 
+[tool.coverage.run]
+omit = ["stara_maze_generator/cli.py"]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
