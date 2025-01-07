@@ -1,9 +1,9 @@
-from typing import Tuple, List, Optional
+from typing import Tuple, List, Optional, TYPE_CHECKING
 
 from numpy._typing import NDArray
 
-from stara_maze_generator.vmaze import VMaze
-from ..types import VMazeProtocol
+if TYPE_CHECKING:
+    from stara_maze_generator.vmaze import VMaze
 
 
 class PathfinderBase:
@@ -14,7 +14,7 @@ class PathfinderBase:
     pathfinding implementations must follow.
     """
 
-    def __init__(self, maze: VMaze):
+    def __init__(self, maze: "VMaze"):
         """
         Initialize pathfinder with a maze.
 

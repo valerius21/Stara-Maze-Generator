@@ -10,9 +10,9 @@ from typing import Tuple
 
 import numpy as np
 from numpy._typing import NDArray
-from stara_maze_generator.pathfinder import Pathfinder
+from stara_maze_generator.pathfinder.types import Pathfinder
 from stara_maze_generator.pathfinder.bfs import BFS
-from stara_maze_generator.utils import export_html
+from stara_maze_generator.visualization import export_html
 
 
 class VMaze:

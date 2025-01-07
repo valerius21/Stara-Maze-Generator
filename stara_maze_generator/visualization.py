@@ -1,15 +1,18 @@
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from stara_maze_generator.vmaze import VMaze
+if TYPE_CHECKING:
+    from stara_maze_generator.vmaze import VMaze
 
 
-def export_html(maze: VMaze, dest_path: Path, draw_solution: bool = False) -> None:
+def export_html(maze: "VMaze", dest_path: Path, draw_solution: bool = False) -> None:
     """
     Export maze as HTML visualization.
 
     Args:
         maze: The maze to export
         dest_path: Path where to save the HTML file
+        draw_solution: Whether to draw the solution path
     """
     HEADER = f"""
         <html>
