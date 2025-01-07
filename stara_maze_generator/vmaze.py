@@ -195,31 +195,3 @@ class VMaze:
         self, dest_path: Path = Path("./export.html"), draw_solution: bool = False
     ) -> None:
         return export_html(self, dest_path, draw_solution)
-
-
-def main():
-    """
-    Main entry point for maze generation.
-
-    Creates a 40x40 maze with start at (1,1) and goal at (38,38),
-    generates the maze structure, and exports it as HTML.
-    Uses a fixed seed (42) for reproducibility.
-    """
-    from time import time
-    from loguru import logger
-
-    size = 40
-    start: NDArray[np.integer] = np.array([1, 1])
-    goal: NDArray[np.integer] = np.array([size - 2, size - 2])
-    maze = VMaze(seed=42, size=size, start=start, goal=goal)
-
-    start_time = time()
-    maze.generate_maze(pathfinding_algorithm=Pathfinder.BFS)
-    end_time = time()
-    logger.info(f"{Pathfinder.BFS}, len(maze.path): {len(maze.path)}")
-    logger.info(f"Time taken: {end_time - start_time} seconds")
-    maze.export_html(Path("bfs_maze.html"), draw_solution=True)
-
-
-if __name__ == "__main__":
-    main()
