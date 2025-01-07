@@ -74,7 +74,8 @@ def main():
 
     # If seed not specified, use random, print it
     if args.seed is None:
-        args.seed = np.random.randint(0, 10000)
+        rng = np.random.default_rng()
+        args.seed = rng.integers(0, 10_000)
         logger.info(f"Seed: {args.seed}")
 
     # If goal not specified, use (size-2, size-2)
