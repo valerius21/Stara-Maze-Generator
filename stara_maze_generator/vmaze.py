@@ -155,6 +155,18 @@ class VMaze:
             indent=2,
         )
 
+    @staticmethod
+    def from_json(json_str: str) -> "VMaze":
+        """Load maze from JSON string."""
+        data = json.loads(json_str)
+        return VMaze(
+            seed=data["seed"],
+            size=data["size"],
+            start=data["start"],
+            goal=data["goal"],
+            min_valid_paths=data["min_valid_paths"],
+        )
+
     def export_json(self, dest_path: Path) -> None:
         """Export maze as JSON file."""
         with open(dest_path, "w") as f:
@@ -237,3 +249,29 @@ class VMaze:
         self, dest_path: Path = Path("./export.html"), draw_solution: bool = False
     ) -> None:
         return export_html(self, dest_path, draw_solution)
+
+    def __str__(self) -> str:
+        return f"VMaze(seed={self.seed}, rows={self.rows}, cols={self.cols}, start={self.start.tolist()}, goal={self.goal.tolist()})"
+
+    def __eq__(self, other: object) -> bool:
+        """Compare two VMaze objects for equality.
+        NOTE: Pathfinding algorithm is not compared!
+
+        Args:
+            other (object): The other object to compare to
+
+        Returns:
+            bool: True if the objects are equal, False otherwise
+        """
+        if not isinstance(other, VMaze):
+            return NotImplemented
+        # Compare relevant attributes for equality
+        return (
+            self.rows == other.rows
+            and self.cols == other.cols
+            and self.seed == other.seed
+            and self.min_valid_paths == other.min_valid_paths
+            and np.array_equal(self.start, other.start)
+            and np.array_equal(self.goal, other.goal)
+            and np.array_equal(self.maze_map, other.maze_map)
+        )

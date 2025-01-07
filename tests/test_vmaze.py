@@ -152,7 +152,12 @@ class TestVMaze:
     def test_repr(self, basic_maze):
         """Test string representation of maze."""
         expected = "VMaze(rows=4, cols=4, start=[0 0], goal=[3 3])"
-        assert str(basic_maze) == expected
+        assert repr(basic_maze) == expected
+
+    def test_str(self, basic_maze):
+        """Test the string representation of the maze."""
+        expected_str = "VMaze(seed=42, rows=4, cols=4, start=[0, 0], goal=[3, 3])"
+        assert str(basic_maze) == expected_str
 
     def test_to_dict(self, simple_maze):
         """Test dictionary conversion with original types."""
@@ -223,3 +228,12 @@ class TestVMaze:
         # Should still find another path
         new_path = maze.find_path()
         assert new_path is not None
+
+    def test_eq(self):
+        """Test the equality operator for VMaze."""
+        maze1 = VMaze(seed=42, size=4, start=(0, 0), goal=(3, 3))
+        maze2 = VMaze(seed=42, size=4, start=(0, 0), goal=(3, 3))
+        maze3 = VMaze(seed=43, size=4, start=(0, 0), goal=(3, 3))
+
+        assert maze1 == maze2, "Mazes with the same attributes should be equal"
+        assert maze1 != maze3, "Mazes with different seeds should not be equal"
