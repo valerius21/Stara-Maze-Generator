@@ -11,6 +11,12 @@ python = "^3.12"
 numpy = "^2.2.1"
 loguru = "^0.7.3"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
 
 [build-system]
 requires = ["poetry-core"]
