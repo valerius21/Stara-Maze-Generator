@@ -4,8 +4,8 @@ import argparse
 from pathlib import Path
 from time import time
 
-import numpy as np
 from loguru import logger
+import numpy as np
 
 from stara_maze_generator.pathfinder import Pathfinder
 from stara_maze_generator.vmaze import VMaze
@@ -33,7 +33,6 @@ def parse_args():
     parser.add_argument(
         "--seed",
         type=int,
-        default=42,
         help="Random seed for reproducible maze generation",
     )
     parser.add_argument(
@@ -73,9 +72,14 @@ def parse_args():
 def main():
     args = parse_args()
 
+    # If seed not specified, use random, print it
+    if args.seed is None:
+        args.seed = np.random.randint(0, 10000)
+        logger.info(f"Seed: {args.seed}")
+
     # If goal not specified, use (size-2, size-2)
     if args.goal is None:
-        args.goal = [args.size - 2, args.size - 2]
+        args.goal = np.array([args.size - 2, args.size - 2])
 
     # Set default output path if not specified
     if args.output is None:
