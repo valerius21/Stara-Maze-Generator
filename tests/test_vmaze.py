@@ -235,5 +235,48 @@ class TestVMaze:
         maze2 = VMaze(seed=42, size=4, start=(0, 0), goal=(3, 3))
         maze3 = VMaze(seed=43, size=4, start=(0, 0), goal=(3, 3))
 
+        # Test equality between VMaze objects
         assert maze1 == maze2, "Mazes with the same attributes should be equal"
         assert maze1 != maze3, "Mazes with different seeds should not be equal"
+
+        # Test comparison with non-VMaze objects
+        assert maze1 != "not a maze"
+        assert maze1 != 42
+        assert maze1 != [1, 2, 3]
+        assert maze1 != {"seed": 42}
+
+    def test_from_json(self, simple_maze):
+        """Test loading maze from JSON string."""
+        # Convert maze to JSON and back
+        json_str = simple_maze.to_json()
+        loaded_maze = VMaze.from_json(json_str)
+
+        # Verify basic properties match
+        assert loaded_maze.seed == simple_maze.seed
+        assert loaded_maze.rows == simple_maze.rows
+        assert loaded_maze.cols == simple_maze.cols
+        assert np.array_equal(loaded_maze.start, simple_maze.start)
+        assert np.array_equal(loaded_maze.goal, simple_maze.goal)
+        assert loaded_maze.min_valid_paths == simple_maze.min_valid_paths
+
+    def test_from_json_invalid(self):
+        """Test from_json with invalid JSON data."""
+        # Test with missing required fields
+        invalid_json = json.dumps({"seed": 42, "size": 4})  # Missing start/goal
+        with pytest.raises(KeyError):
+            VMaze.from_json(invalid_json)
+
+        # Test with invalid JSON string
+        with pytest.raises(json.JSONDecodeError):
+            VMaze.from_json("invalid json")
+
+        # Test with invalid values
+        invalid_data = {
+            "seed": 42,
+            "size": 2,  # Too small
+            "start": [0, 0],
+            "goal": [1, 1],
+            "min_valid_paths": 3,
+        }
+        with pytest.raises(ValueError, match="size must be at least 4"):
+            VMaze.from_json(json.dumps(invalid_data))
