@@ -6,7 +6,8 @@ The mazes are generated using a modified version of the randomized Prim's algori
 """
 
 from pathlib import Path
-from typing import Tuple
+import json
+from typing import Tuple, Dict, Any
 
 import numpy as np
 from numpy._typing import NDArray
@@ -119,6 +120,24 @@ class VMaze:
         raise NotImplementedError(
             f"Pathfinder {pathfinding_algorithm} not implemented"
         )  # pragma: no cover
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert maze to JSON-serializable dictionary."""
+        return {
+            "seed": self.seed,
+            "size": self.rows,
+            "start": self.start.tolist(),
+            "goal": self.goal.tolist(),
+            "min_valid_paths": self.min_valid_paths,
+            "maze_map": self.maze_map.tolist(),
+            "path": self.path if self.path else None,
+            "pathfinding_algorithm": self.pathfinding_algorithm.name,
+        }
+
+    def export_json(self, dest_path: Path) -> None:
+        """Export maze as JSON file."""
+        with open(dest_path, "w") as f:
+            json.dump(self.to_dict(), f, indent=2)
 
     def generate_maze(self, pathfinding_algorithm: Pathfinder = Pathfinder.BFS):
         """

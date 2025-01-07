@@ -12,11 +12,15 @@ from stara_maze_generator.vmaze import VMaze
 
 
 def get_default_output(
-    size: int, seed: int, min_valid_paths: int, pathfinding_algorithm: Pathfinder
+    size: int,
+    seed: int,
+    min_valid_paths: int,
+    pathfinding_algorithm: Pathfinder,
+    format: str,
 ) -> Path:
     """Generate default output filename based on maze settings."""
     return Path(
-        f"{size}x{size}_seed{seed}_paths{min_valid_paths}_{pathfinding_algorithm.name}_maze.html"
+        f"{size}x{size}_seed{seed}_paths{min_valid_paths}_{pathfinding_algorithm.name}_maze.{format}"
     )
 
 
@@ -53,12 +57,18 @@ def parse_args():
     parser.add_argument(
         "--output",
         type=Path,
-        help="Output HTML file path. Defaults to size_seedX_pathsY_maze.html",
+        help="Output file path. Defaults to size_seedX_pathsY_maze.[format]",
+    )
+    parser.add_argument(
+        "--format",
+        choices=["html", "json"],
+        default="html",
+        help="Output format (default: html)",
     )
     parser.add_argument(
         "--draw-solution",
         action="store_true",
-        help="Draw the solution path in the output",
+        help="Draw the solution path in the HTML output",
     )
     parser.add_argument(
         "--min-valid-paths",
@@ -85,7 +95,7 @@ def main():
     # Set default output path if not specified
     if args.output is None:
         args.output = get_default_output(
-            args.size, args.seed, args.min_valid_paths, Pathfinder.BFS
+            args.size, args.seed, args.min_valid_paths, Pathfinder.BFS, args.format
         )
 
     # Create and generate maze
@@ -107,7 +117,11 @@ def main():
     )
     logger.info(f"Time taken: {end_time - start_time:.2f} seconds")
 
-    maze.export_html(args.output, draw_solution=args.draw_solution)
+    # Export in selected format
+    if args.format == "json":
+        maze.export_json(args.output)
+    else:
+        maze.export_html(args.output, draw_solution=args.draw_solution)
     logger.info(f"Maze exported to {args.output}")
 
 
